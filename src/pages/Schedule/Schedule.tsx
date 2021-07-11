@@ -33,8 +33,12 @@ export default function Schedule(props: any) {
             month: month,
             year: year
         }
-
+        //verifica se o evento ja existe
         const checked = checkedEvent(data);
+
+        if(checked === true) {
+            alert('Evento já registrado, por favor selecione outro horário!');
+        }
        
         try {
             API.post<Appointment>('/create-appointment', data).then((response) => {
@@ -51,13 +55,21 @@ export default function Schedule(props: any) {
         }
     }
 
+    /**
+     * metodo que verifica aexistencia de um evento
+     * antes da inserção para evitar duplicata
+     * @param data 
+     * @returns boolean
+     */
     function checkedEvent(data: Appointment): any {
 
         try {
             API.get<Appointment>(`/checked-appointment/${data.hour}/${data.day}/${data.month}/${data.year}`).then((response) => {
-                if(response) {
-                    alert('Evento já registrado, por favor selecione outro horário!');
+                if(response.data) {
                     return true;
+                }
+                if(response.data === false) {
+                    return false;
                 }
             }).catch(e => {
                 alert('Ops, ocorreu algum erro.. :(')
@@ -66,8 +78,6 @@ export default function Schedule(props: any) {
         } catch (e) {
             console.log('error: ', e);
         }
-
-        return false;
     }
 
     /**
